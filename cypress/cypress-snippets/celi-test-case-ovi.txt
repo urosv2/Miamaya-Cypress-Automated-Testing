@@ -1,0 +1,202 @@
+// 🔗NAVIGATION
+// 👉 1.Logika za nosto search komparaciju live-a i nosta po title-u
+// 👉 2.Logika za nosto search komparaciju live-a i nosta po cenama
+
+
+
+1. //🔽
+it('TC01-Nosto search testing - insert 2 characters', () => {
+    const searchParams = 'sa';
+    const frontEndResults = [];
+  
+    const polish = (text) => {
+      return text
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim()
+        .normalize('NFD') // normalizujemo akcentovane karaktere
+        .replace(/[\u0300-\u036f]/g, '') // izbacujemo akcente
+        .replace(/[^a-z0-9\s]/gi, ''); // izbacujemo specijalne karaktere
+    };
+  
+    cy.get('.headerMiddle_searchIcon__A_ZLQ').eq(0).click({ force: true });
+    cy.get('input[id="search_input"]').type(searchParams);
+    cy.wait(4000);
+  
+    cy.get('.headerSearch_wrapperInner__tfUc4 article')
+      .each(($article) => {
+        cy.wrap($article)
+          .find('.productArticle_productInfoWrapper__tFpRM')
+          .invoke('text')
+          .then((text) => {
+            frontEndResults.push(polish(text));
+          });
+      })
+      .then(() => {
+        const frontEndResultsLength = frontEndResults.length;
+  
+        cy.visit('https://my.nosto.com/auth/login');
+  
+        cy.origin(
+          'https://my.nosto.com',
+          {
+            args: {
+              nostoEmail,
+              nostoPassword,
+              searchParams,
+              frontEndResults,
+              frontEndResultsLength,
+            },
+          },
+          ({ nostoEmail, nostoPassword, searchParams, frontEndResults, frontEndResultsLength }) => {
+            const polish = (text) => {
+              return text
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9\s]/gi, '');
+            };
+  
+            cy.get('[id="username"]').type(nostoEmail);
+            cy.get('[id="password"]').type(nostoPassword);
+            cy.get('[id="signin"]').click();
+            cy.contains('Miamaya Test').click();
+  
+            cy.url().should('eq', 'https://my.nosto.com/admin/hfatfyf6/dashboard');
+  
+            cy.contains('Product Experience Cloud', { timeout: 5000 }).click();
+            cy.contains('Search', { timeout: 7000 }).click();
+            cy.contains('Rules', { timeout: 7000 }).click();
+            cy.contains('General rule', { timeout: 7000 }).click();
+  
+            cy.get('input[placeholder="Search"]').scrollIntoView().type(searchParams);
+            cy.wait(2000);
+  
+            const backEndResults = [];
+  
+            cy.get('.grid .product-preview')
+              .each(($product, index) => {
+                if (index < frontEndResultsLength) {
+                  cy.wrap($product)
+                    .find('.product-title')
+                    .invoke('text')
+                    .then((text) => {
+                      backEndResults.push(polish(text));
+                    });
+                }
+              })
+              .then(() => {
+                cy.log('Front End:', JSON.stringify(frontEndResults));
+                cy.log('Back End:', JSON.stringify(backEndResults));
+                console.log('Front End:', frontEndResults);
+                console.log('Back End:', backEndResults);
+  
+                frontEndResults.forEach((frontendName) => {
+                  expect(backEndResults).to.include(
+                    frontendName,
+                    `Expected backend to include: "${frontendName}"`
+                  );
+                });
+              });
+          }
+        );
+      });
+  });
+
+
+
+   2. //🔽
+   it('TC01-Nosto search testing - compare prices', () => {
+      const searchParams = 'ma';
+      const frontEndPrices = [];
+    
+      const extractPrice = (text) => {
+        const beforeComma = text.split(',')[0]; // uzimamo sve pre zareza da bi se poklapalo sa nostom(iz nekog razloga u cypress browseru nema decimala)
+        const noDots = beforeComma.replace(/\./g, ''); // uklanjamo tačke
+        const numericOnly = noDots.replace(/[^\d]/g, ''); // uklanjamo sve što nije broj
+        return parseInt(numericOnly, 10);
+      };
+      
+    
+      cy.get('.headerMiddle_searchIcon__A_ZLQ').eq(0).click({ force: true });
+      cy.get('input[id="search_input"]').type(searchParams);
+      cy.wait(4000);
+    
+      cy.get('.headerSearch_wrapperInner__tfUc4 article')
+        .each(($article) => {
+          cy.wrap($article)
+            .find('[data-test="productCurrentPrice"]')
+            .invoke('text')
+            .then((priceText) => {
+              frontEndPrices.push(extractPrice(priceText));
+            });
+        })
+        .then(() => {
+          const frontEndPricesLength = frontEndPrices.length;
+    
+          cy.visit('https://my.nosto.com/auth/login');
+    
+          cy.origin(
+            'https://my.nosto.com',
+            {
+              args: {
+                nostoEmail,
+                nostoPassword,
+                searchParams,
+                frontEndPrices,
+                frontEndPricesLength,
+              },
+            },
+            ({ nostoEmail, nostoPassword, searchParams, frontEndPrices, frontEndPricesLength }) => {
+              const extractPrice = (text) => {
+                return parseInt(text.replace(/[^\d]/g, ''), 10);// ovde samo uklanjamo sve sto nema broj
+              };
+    
+              cy.get('[id="username"]').type(nostoEmail);
+              cy.get('[id="password"]').type(nostoPassword);
+              cy.get('[id="signin"]').click();
+              cy.contains('Miamaya Test').click();
+    
+              cy.url().should('eq', 'https://my.nosto.com/admin/hfatfyf6/dashboard');
+    
+              cy.contains('Product Experience Cloud', { timeout: 5000 }).click();
+              cy.contains('Search', { timeout: 7000 }).click();
+              cy.contains('Rules', { timeout: 7000 }).click();
+              cy.contains('General rule', { timeout: 7000 }).click();
+    
+              cy.get('input[placeholder="Search"]').scrollIntoView().type(searchParams);
+              cy.wait(2000);
+    
+              const backEndPrices = [];
+    
+              cy.get('.grid .product-preview')
+                .each(($product, index) => {
+                  if (index < frontEndPricesLength) {
+                    cy.wrap($product)
+                      .find('.product-price') 
+                      .invoke('text')
+                      .then((priceText) => {
+                        backEndPrices.push(extractPrice(priceText));
+                      });
+                  }
+                })
+                .then(() => {
+                  cy.log('Front End Prices:', JSON.stringify(frontEndPrices));
+                  cy.log('Back End Prices:', JSON.stringify(backEndPrices));
+                  console.log('Front End Prices:', frontEndPrices);
+                  console.log('Back End Prices:', backEndPrices);
+    
+                  frontEndPrices.forEach((frontendPrice, index) => {
+                    const backendPrice = backEndPrices[index];
+                    expect(backendPrice, `Price mismatch at index ${index}`).to.eq(frontendPrice);
+                  });
+                });
+            }
+          );
+        });
+    });
+
+
+  

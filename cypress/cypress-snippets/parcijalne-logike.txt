@@ -1,0 +1,133 @@
+// 🔗 NAVIGACIJA
+// 👉 1.Logika za klik na prvi pronadjeni artikal koji nema miayamaya gold labelu
+// 👉 2.Logika za validaciju poruke o uspesnoj porudzbini sa dinamickim ID-em(regex)
+// 👉 3.Logika za sortiranje proizvoda po opadajucoj ceni
+// 👉 4.Logika za sortiranje proizvoda po rastucoj ceni
+
+
+1. //🔽
+
+cy.get('[data-test="headerMenuItem1"]')
+      .contains('ODEĆA')
+      .click();
+      cy.wait(2000)
+    cy.get('[data-test="productList"] article')
+      .then(($articles) => {
+        function checkProduct(index) {
+          if (index >= $articles.length) return;
+
+          const article = $articles.eq(index);
+
+
+          cy.wrap(article)
+            .find('.productArticle_labelsWrapper__gqpvK')
+            .then(($label) => {
+              const labelText = $label.text();
+
+              if (!labelText.includes('MiaMaya Gold')) {
+                cy.wrap(article).as('article')
+                cy.wait(1000)
+                cy.get('@article')
+                  .click();
+
+
+              } else {
+                checkProduct(index + 1);
+              }
+
+
+            });
+        }
+        checkProduct(0);
+
+      });
+
+
+      2. //🔽
+
+      cy.get('@thankYouForYourOrderText')
+      .invoke('text')
+      .then((text) => {
+        const trimmedText = text.trim();
+        expect(trimmedText).to.match(/^Vaša porudžbina #\d+ je uspešno realizovana\.$/)
+      });
+
+
+      3. //🔽
+
+      cy.get('.select_text__E2sB_').should('contain', 'Cena opadajuća');
+
+  const prices = [];
+
+  cy.get('[data-test="productList"] article[data-test="single-product"]').each(($element) =>{
+
+    cy.wrap($element)
+    .find('[data-test="productCurrentPrice"]')
+    .invoke('text')
+    .then(($priceText)=>{
+      let productPrice = $priceText
+
+      productPrice = productPrice.replace('.', '')
+      productPrice = productPrice.replace('.', '')
+      
+      
+      productPrice = parseFloat(productPrice);
+     
+
+      prices.push(productPrice);
+
+
+    });
+
+  }).then(() => {
+    for(let i = 1; i<prices.length; i++){
+
+      expect(prices[i]).to.be.at.most(prices[i - 1], `Price at index ${i} (${prices[i]}) is equal or less than previous (${prices[i - 1]})`);
+    }
+
+  });
+
+
+  4. //🔽
+
+  cy.contains('Cena rastuća')
+  .click()//sortiramo proizvode po rastucoj ceni
+
+  cy.get('.select_text__E2sB_').should('contain', 'Cena rastuća');
+
+  //iniciramo za sada prazan niz cena u koji cemo da svrstavamo sve cene na stranici
+  const prices = [];
+
+  //u listi proizvoda nalazimo artikle i for each petljom prolazimo kroz njih kao individualne elemente
+  cy.get('[data-test="productList"] article[data-test="single-product"]').each(($element) =>{
+
+    cy.wrap($element)
+    .find('[data-test="productCurrentPrice"]')
+    //uzimamo propert elementa, u ovom slucaju tekst(koji je u ovom slucaju cena) i for each-ujemo i njih 
+    .invoke('text')
+    .then(($priceText)=>{
+
+      //uvodimo varijablu kojoj dodeljujemo vrednost teksta koji smo izvukli u prethodnom koduj
+      let productPrice = $priceText
+
+      //'uklanjamo' tacke tako sto ih zamenjujemo praznim stringom radi preciznijeg parsiranja teksta u broj
+       productPrice = productPrice.replace('.', '');
+      
+      //koristimo parseFloat da bi pretvorili tekst u float
+      productPrice = parseFloat(productPrice);
+     
+      // ubacujemo cenu na kraj niza
+      prices.push(productPrice);
+
+
+    });
+
+  }).then(() => {
+    //klasicna for petlja kojom izvrsavamo kod koji sleduje dok ne dodjemo do kraja niza(u ovom slucaju liste prozivoda)
+    for(let i = 1; i<prices.length; i++){
+
+      //
+      expect(prices[i]).to.be.at.least(prices[i - 1], `Price at index ${i} (${prices[i]}) is equal or larger than previous (${prices[i - 1]})`);
+    }
+
+  });
