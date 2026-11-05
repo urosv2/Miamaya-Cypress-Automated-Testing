@@ -1,0 +1,141 @@
+
+# Miamaya – Cypress E2E Test Automation
+
+End-to-end test automation project for the Miamaya e-commerce website, developed using **Cypress and JavaScript**.
+
+The project focuses on validating critical user journeys, core website functionality, and third-party integrations to ensure a reliable shopping experience.
+
+## 🛠 Tech Stack
+
+- **Cypress** – End-to-end test automation
+- **JavaScript** – Test scripting
+- **Node.js / npm** – Dependency management
+- **Git & GitHub** – Version control
+
+## ✅ Test Coverage
+
+### 1. Authentication
+- User login functionality
+- User registration
+- Form validation
+- Authentication error handling
+
+### 2. Checkout Process
+- Complete checkout user journeys
+- Different checkout flows
+- Customer information validation
+- Shipping and payment steps
+- Order submission and confirmation
+
+### 3. User Profile
+- User account functionality
+- Profile information management
+- Navigation through account sections
+- Account-related user interactions
+
+### 4. Website Functionality
+- Core e-commerce functionalities
+- Product browsing and navigation
+- User interactions and form validation
+- General functional testing
+
+### 5. Header & Footer
+- Header navigation
+- Menu functionality
+- Footer links and navigation
+- Interactive elements
+
+### 6. Nosto Integration
+- Nosto recommendation widgets
+- Product recommendation functionality
+- User interactions with recommended products
+- Integration-related UI behavior
+
+## 🎯 Testing Objectives
+
+The main objectives of this automation project are:
+
+- Validate critical user journeys.
+- Reduce repetitive manual regression testing.
+- Detect functional issues early.
+- Verify website behavior across key user flows.
+- Improve consistency and reliability of regression testing.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/urosv2/Miamaya-Cypress-Automated-Testing.git
+```
+
+Navigate to the project:
+
+```bash
+cd Miamaya-Cypress-Automated-Testing
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Running Tests
+
+Open Cypress Test Runner:
+
+```bash
+npx cypress open
+```
+
+Run all tests in headless mode:
+
+```bash
+npx cypress run
+```
+
+Run a specific test file:
+
+```bash
+npx cypress run --spec "cypress/e2e/example.cy.js"
+```
+
+Replace the example path with an existing test file.
+
+## 📁 Project Structure
+
+A typical Cypress project is organized as follows:
+
+```text
+cypress/
+├── e2e/          # Automated test specifications
+├── fixtures/     # Test data
+└── support/      # Shared commands and configuration
+cypress.config.js
+package.json
+README.md
+```
+
+The exact structure depends on the project configuration.
+
+## 👨‍💻 QA Responsibilities
+
+- Designing and implementing automated E2E test scenarios.
+- Developing and maintaining Cypress test scripts.
+- Validating critical e-commerce workflows.
+- Investigating test failures and functional defects.
+- Supporting regression testing through automation.
+
+## 📌 Project Overview
+
+This project demonstrates hands-on experience with Cypress automation applied to a real-world e-commerce application, covering multiple functional areas and third-party integrations.
+
+The repository is intended to showcase practical QA automation skills.
